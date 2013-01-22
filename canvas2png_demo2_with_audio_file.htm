@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Abstract Equalizer/Animation using Mozilla Audio Data API, HTML5, Ajax, Three.js </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<link href="css/style.css" rel="stylesheet" type="text/css">
+	<link href="css/sif_discussion.css" rel="stylesheet" type="text/css">
+
+	<script src="js/mozilla/dsp.js"></script>
+	<script src="js/mozilla/sif_discussion.js"></script>
+
+	<script language="JavaScript">
+		function init_page() {
+			visualizer(); // start visualizer listener
+		}
+		window.onload = init_page;
+	</script>
+</head>
+
+<body>
+
+	<div id="container">
+		<div>
+			<canvas id="fft" width="20" height="20"></canvas>
+		</div>
+		<div style="">
+			<audio src="media/Maran_Project_iDream.ogg" id="input" controls="true" style="" onloadedmetadata="loadedMetaData(event);"></audio>
+		</div>
+		<div>
+			<canvas id="canvas-draw-fancy"></canvas>
+		</div>
+		<div class="clearall"></div>
+	</div>
+
+	<!-- Mozilla Audio Data API -->
+	<script language="JavaScript" src="js/mozilla/firefoxAudioController.js"></script>
+
+	<!-- jquery -->
+	<script src="js/jquery_1.js"></script>
+
+	<!-- threejs libs -->
+	<script src="js/threejs/Three.js"></script>
+	<script src="js/threejs/RequestAnimationFrame.js"></script>
+	<script src="js/threejs/Cube.js"></script>
+	<script src="js/threejs/Plane.js"></script>
+	<script src="js/threejs/Tween.js"></script>
+	<script src="js/threejs/Stats.js"></script> 
+
+	<!-- custom code for animation -->
+	<script type="text/javascript"  src="js/CustomAnimation.js"></script>
+
+	<!-- recorder - ajax png sender to php png writer -->
+	<script type="text/javascript"  src="js/RecorderAnimation.js"></script>
+		
+	<script type="text/javascript"></script>
+
+</body>
+</html>

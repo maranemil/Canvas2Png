@@ -1,4 +1,4 @@
-body { margin: 0px; text-align: center; background-color: #111111; font-family: Helvetica, Arial, sans-serif; color: #cccccc; font-size: 75.5%; }
+body { margin: 0; text-align: center; background-color: #111111; font-family: Helvetica, Arial, sans-serif; color: #cccccc; font-size: 75.5%; }
 
 a,a:hover,a:active,a:visited { color: #ff0000; outline: none; }
 h1, h2, h3 { font-weight: bold; }
@@ -9,12 +9,16 @@ h3 { font-size: 1.1em; padding: 10px 0 0 15px; }
 code { font-size: 1.1em; color: #ddbbbb; display: block; overflow: auto; width: 678px; }
 
 #container { 
-	position: relative; margin-left: auto; margin-right: auto; text-align: left; background-color:#333333; margin-top: 15px; margin-bottom: 20px; font-size: 1.3em; width: 800px; padding: 10px; height: 250px;
-	border-radius: 8px; -moz-border-radius: 8px; -webkit-border-radius: 8px; box-shadow: 4px 4px 4px #111111; -moz-box-shadow: 4px 4px 4px #111111; -webkit-box-shadow: 4px 4px 4px #111111;
+	position: relative;
+	text-align: left; background-color:#333333;
+	margin: 15px auto 20px;
+	font-size: 1.3em; width: 800px; padding: 10px; height: 250px;
+	border-radius: 8px; -moz-border-radius: 8px; -webkit-border-radius: 8px;
+	box-shadow: 4px 4px 4px #111111; -moz-box-shadow: 4px 4px 4px #111111; -webkit-box-shadow: 4px 4px 4px #111111;
 }
 
 #input { width: 800px; height: 40px }
 
 #fft { background-color: #000000; height: 20px }
-.clearall { clear: both; height: 1px; padding: 0px; margin: 0px; line-height: 1px; }
+.clearall { clear: both; height: 1px; padding: 0; margin: 0; line-height: 1px; }
 #canvas-draw-fancy { margin-top: 30px }

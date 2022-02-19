@@ -8,6 +8,7 @@
 <!--[if IE 8 ]>
 <html class="no-js ie8 oldie lang_de" lang="de"> <![endif]-->
 <!--[if (gte IE 9)|!(IE)]><!-->
+<!--suppress JSUnusedGlobalSymbols -->
 <html class="no-js compliant lang_de" lang="de"><!--<![endif]-->
 <head>
 
@@ -54,7 +55,7 @@
 
     ...........................................................
 
-    Ascii Generator - http://www.network-science.de/ascii/
+    Ascii Generator - https://www.network-science.de/ascii/
 
     Font: larry3d
     Font: ogre
@@ -79,7 +80,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame Remove this if you use the .htaccess -->
+    <!-- Always force the latest IE rendering engine (even in intranet) & Chrome Frame Remove this if you use the .htaccess -->
     <meta name="generator" content="editplus">
     <meta name="author" content="">
     <meta name="keywords" content="">
@@ -108,33 +109,30 @@
 <script type="text/javascript" src="js/threejs/Tween.js"></script>
 <script>
 
-	let container, stats;
+    let container, stats;
 
-	const bCopyPNG = 1;
-	const bWritePNG = 0;
+    const bCopyPNG = 1;
+    const bWritePNG = 0;
 
-	const bgRender = '0x000000';
+    const bgRender = '0x000000';
 
-	let camera, scene, renderer, objects;
-	let particleLight, pointLight;
-	let interval, projector, plane, cube, linesMaterial;
+    let camera, scene, renderer, objects;
+    let particleLight, pointLight;
+    let projector, plane, cube, linesMaterial;
 
-	let color = 0, colors = [0xDF1F1F, 0xDFAF1F, 0x80DF1F, 0x1FDF50, 0x1FDFDF, 0x1F4FDF, 0x7F1FDF, 0xDF1FAF, 0xEFEFEF, 0x303030];
-	let brush, objectHovered, mouse3D, isMouseDown = false;
-	const radious = 600, theta = 45, onMouseDownTheta = 45, phi = 60, onMouseDownPhi = 60, isShiftDown = false;
+    let color = 0,
+        colors = [0xDF1F1F, 0xDFAF1F, 0x80DF1F, 0x1FDF50, 0x1FDFDF, 0x1F4FDF, 0x7F1FDF, 0xDF1FAF, 0xEFEFEF, 0x303030];
+    let brush, objectHovered;
+    const isShiftDown = false;
+    const ray = {};
 
-	const onMouseDownPosition = {};
-	const ray = {};
+    let texture_placeholder,
+        lon = 90,
+        lat = 0,
+// phi = 0, theta = 0,
+        target = new THREE.Vector3();
 
-	let texture_placeholder,
-		isUserInteracting = false,
-		onMouseDownMouseX = 0, onMouseDownMouseY = 0,
-		lon = 90, onMouseDownLon = 0,
-		lat = 0, onMouseDownLat = 0,
-		// phi = 0, theta = 0,
-		target = new THREE.Vector3();
-
-	/*
+    /*
 
     http://en.wikipedia.org/wiki/DVD-Video
 
@@ -165,555 +163,560 @@
 
     */
 
-	const windowHalfX = 720; //
-	const windowHalfY = 480; //
+    const windowHalfX = 720; //
+    const windowHalfY = 480; //
 
-	//var windowHalfX = 1280; //
-	//var windowHalfY = 720; //
+    //var windowHalfX = 1280; //
+    //var windowHalfY = 720; //
 
-	init();
-	animate();
+    init();
+    animate();
 
-	////////////////////////////////////////////////////////////////////////
-	//
-	// INIT
-	//
-	////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // INIT
+    //
+    ////////////////////////////////////////////////////////////////////////
 
-	function init() {
+    function init()
+    {
 
-		// ------------------------------------------------
-		// define canvas element in DOM
-		const materials = [];
+        // ------------------------------------------------
+        // define canvas element in DOM
+        const materials = [];
 // ------------------------------------------------
-		container = document.createElement('div');
-		document.body.appendChild(container);
-		objects = [];
-
-		// ------------------------------------------------
-		// define info element in DOM
-		// ------------------------------------------------
-		const info = document.createElement('div');
-		info.style.position = 'absolute';
-		info.style.top = '10px';
-		info.style.background = '#fff';
-		info.style.color = '#333';
-		info.style.width = '100%';
-		info.style.textAlign = 'center';
-		info.setAttribute.id = 'info';
-		info.innerHTML = '<a href="http://github.com/mrdoob/three.js" target="_blank">three.js</a> / Pseudo Equalizer in 3D Room  by Emil Maran';
-		container.appendChild(info);
-
-		// ------------------------------------------------
-		// Set Camera View & Scene
-		// ------------------------------------------------
-		camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 18000);
-		//camera.position.x = 100;
-		camera.position.y = 200;
-		camera.position.z = 420;
-
-		scene = new THREE.Scene();
-
-		// ------------------------------------------------
-		// Panorama landscape
-		// ------------------------------------------------
-
-		const mesh = new THREE.Mesh(
-			new THREE.CubeGeometry(1100, 1100, 1100, 2, 2, 4, materials),
-			new THREE.MeshLambertMaterial({
-				color: 0xF4E284, // ff0A04,
-				//shading: THREE.FlatShading
-				blending: THREE.AdditiveBlending
-			})
-		); /* ff6699 */
-
-		mesh.scale.x = -2;
-		scene.add(mesh);
-		objects.push(mesh);
-
-		// -------------------------------------------------------------------------------------------------
-		// RANDOM CUBES
-		// -------------------------------------------------------------------------------------------------
-		// http://www.elated.com/articles/rotatable-3d-product-boxshot-threejs/
-
-		const arPositionX = {
-			'0': '140',
-			'1': '170',
-			'2': '190',
-			'3': '100',
-			'4': '80',
-			'5': '30'
-		};
-
-		const arPositionY = {
-			'0': '100',
-			'1': '130',
-			'2': '160',
-			'3': '190',
-			'4': '210',
-			'5': '240'
-		};
-
-		const arPositionZ = {
-			'0': '100',
-			'1': '100',
-			'2': '100',
-			'3': '100',
-			'4': '100',
-			'5': '100'
-		};
-
-
-		const geometry = new THREE.CubeGeometry(115, 115, 115);
-		const material = new THREE.MeshLambertMaterial({color: 0xFAD232, shading: THREE.AdditiveBlending, overdraw: true});
-
-		for (let i = 0; i < 6; i++) {
-			const cubeRnd = new THREE.Mesh(geometry, material);
-			cubeRnd.overdraw = false;
-			cubeRnd.transparent = false;
-			//cubeRnd.position.x = Math.floor( ( Math.random() * 1000 - 700 ) / 50 ) * 50 + 25;
-			cubeRnd.position.x = arPositionX[i];
-			cubeRnd.position.y = arPositionY[i];
-			cubeRnd.position.z = arPositionZ[i];
-			scene.add(cubeRnd);
-			objects.push(cubeRnd);
-		}
-
-		// -------------------------------------------------------------------------------------------------
-		// Lights
-		// -------------------------------------------------------------------------------------------------
-
-		particleLight = new THREE.Particle(new THREE.ParticleCanvasMaterial({color: 0xffffff}));
-		particleLight.scale.x = particleLight.scale.y = particleLight.scale.z = 6;
-		//scene.add( particleLight );
-
-		//scene.add( new THREE.AmbientLight( Math.random() * 0x202020 ) );
-
-		let directionalLight = new THREE.DirectionalLight(Math.random() * 0xffffff);
-		directionalLight.position.x = Math.random() - 0.4;
-		directionalLight.position.y = Math.random() - 0.3;
-		directionalLight.position.z = Math.random() - 0.9;
-		directionalLight.position.normalize();
-		//scene.add( directionalLight );
-
-		pointLight = new THREE.PointLight(0xffffff, .7);
-		scene.add(pointLight);
-		objects.push(pointLight);
-
-		// add subtle ambient lighting
-		const lightSecond = new THREE.SpotLight(0xffffff, 1);
-		lightSecond.position.set(1290, 530, -160);
-		//scene.add(lightSecond);
-
-		// add subtle ambient lighting
-		const ambientLight = new THREE.AmbientLight(0xffffff);
-		//scene.add(ambientLight);
-
-		// add directional light source
-		directionalLight = new THREE.DirectionalLight(0xffffff);
-		directionalLight.position.set(10, 100, 1000).normalize();
-		//scene.add(directionalLight);
-
-
-		// ------------------------------------------------
-		// renderer
-		// ------------------------------------------------
-		renderer = new THREE.CanvasRenderer();
-		// renderer = new THREE.WebGLRenderer();
-		renderer.setSize(windowHalfX, windowHalfY); // window.innerWidth, window.innerHeight
-		container.appendChild(renderer.domElement);
-
-		// ------------------------------------------------
-		// debugCanvas
-		// ------------------------------------------------
-
-		const debugCanvas = document.createElement('canvas');
-		debugCanvas.width = 512;
-		debugCanvas.height = 512;
-		debugCanvas.style.position = 'absolute';
-		debugCanvas.style.top = '0px';
-		debugCanvas.style.left = '0px';
-		debugCanvas.setAttribute.id = 'debugCanvas';
-		container.appendChild(debugCanvas);
-
-		const debugContext = debugCanvas.getContext('2d');
-		debugContext.setTransform(1, 0, 0, 1, 256, 256);
-		debugContext.strokeStyle = '#000000';
-
-		stats = new Stats();
-		stats.domElement.style.position = 'absolute';
-		stats.domElement.style.top = '0px';
-		container.appendChild(stats.domElement);
-
-		//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-
-		// ------------------------------------------------
-		// debugCanvas
-		// ------------------------------------------------
-
-		const nfoCanvas = document.createElement('canvas');
-		nfoCanvas.width = 512;
-		nfoCanvas.height = 512;
-		nfoCanvas.style.position = 'absolute';
-		nfoCanvas.style.top = '220px';
-		nfoCanvas.style.left = '220px';
-		nfoCanvas.setAttribute.id = 'nfoCanvas';
-		container.appendChild(nfoCanvas);
-
-		const nfoContext = nfoCanvas.getContext('2d');
-		nfoContext.setTransform(1, 0, 0, 1, 256, 256);
-		nfoContext.strokeStyle = '#000000';
-
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// ChangeCameraPosByClick
-	//
-	////////////////////////////////////////////////////////////////////////
-
-	function ChangeCameraPosByClick(itemId) {
-		//document.removeEventListener('mousemove',onDocumentMouseMove ,false);
-		$('canvas').unbind('mousemove');
-		if (itemId === "item1") {
-			camera.position.x = 140;
-			camera.position.y = 153;
-			camera.position.z = 423; // z - zoom
-		} else if (itemId === "item2") {
-			camera.position.x = 20;
-			camera.position.y = 113;
-			camera.position.z = 592; // z - zoom
-		}
-		camera.lookAt(scene.position);
-		renderer.render(scene, camera);
-		renderer.setClearColorHex(bgRender, 0.9);
-		stats.update();
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// loadTexture
-	//
-	////////////////////////////////////////////////////////////////////////
-
-	function loadTexture(path) {
-		const texture = new THREE.Texture(texture_placeholder);
-		const material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
-		const image = new Image();
-		image.onload = function () {
-			texture.needsUpdate = true;
-			material.map.image = this;
-			render();
-
-		};
-		image.src = path;
-		return material;
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// RENDER
-	//
-	////////////////////////////////////////////////////////////////////////
-
-	function render() {
-
-		const timer = new Date().getTime() * 0.00009;
-		const radius = 300;
-		camera.position.x = Math.cos(timer) * 100;
-		camera.position.y = Math.cos(timer) * 700;
-		camera.position.z = Math.sin(timer) * 1950;
-		camera.lookAt(scene.position);
-		const numerator = timer * 1000000;
-		const denominator = 17;
-		const remainder = numerator % denominator;
-
-		let i = 0, l = objects.length;
-		let colorCB;
-		let colorCC;
-		for (; i < l; i++) {
-			colorCB = '0xff' + Math.round(Math.random() * 9) + 'f' + Math.round(Math.random() * 9) + 'f'; // 0xff00ff
-			colorCC = '0xff' + Math.round(Math.random() * 8) + 'f' + Math.round(Math.random() * 2) + 'f'; // 0xff00ff
-			const object = objects[i];
-			//object.rotation.x += Math.random() * 0.00002 + 0.00003;
-			//object.rotation.y += Math.random() * 0.00002 + 0.00004;
-			if (i > 0) {
-				//object.rotation.z += Math.random() * 0.00002 + 0.00006;
-			}
-			object.material = new THREE.MeshBasicMaterial({
-				color: colorCC, // ECDC68
-				transparent: false,
-				opacity: 0.8,
-				overdraw: true,
-				wireframe: false,
-				blending: THREE.AdditiveBlending
-			});
-			if (remainder > 15) {
-				object.scale.x = Math.random() * 0.6 + Math.random() * 7;
-				object.scale.y = Math.random() * 0.09 + Math.random() * 3;
-				object.scale.z = Math.random() * 9 + Math.PI / 180;
-				object.material = new THREE.MeshBasicMaterial({
-					color: colorCB,
-					transparent: false,
-					opacity: 0.8,
-					overdraw: true,
-					wireframe: false,
-					blending: THREE.AdditiveBlending
-				});
-			}
-		}
-		renderer.render(scene, camera);
-		renderer.setClearColorHex(bgRender, 0.9);
-		stats.update();
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// LOADIMAGE
-	//
-	////////////////////////////////////////////////////////////////////////
-
-	function loadImage(path) {
-		const image = document.createElement('img');
-		const texture = new THREE.Texture(image, THREE.UVMapping);
-		image.onload = function () {
-			texture.needsUpdate = true;
-		};
-		image.src = path;
-		return texture;
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// ANIMATE
-	//
-	////////////////////////////////////////////////////////////////////////
-
-	function animate() {
-
-		requestAnimationFrame(animate);
-		render();
-		stats.update();
-
-	}
-
-	function setBrushColor(value) {
-		color = value;
-		brush.material[0].color.setHex(colors[color] ^ 0x4C000000);
-		render();
-	}
-
-	function buildFromHash() {
-
-		let voxel;
-		let i;
-		let data;
-		const hash = window.location.hash.substr(1),
-			version = hash.substr(0, 2);
-
-		if (version === "A/") {
-			const current = {x: 0, y: 0, z: 0, c: 0};
-			data = decode(hash.substr(2));
-			i = 0;
-			let l = data.length;
-			while (i < l) {
-				const code = data[i++].toString(2);
-				if (code.charAt(1) === "1") current.x += data[i++] - 32;
-				if (code.charAt(2) === "1") current.y += data[i++] - 32;
-				if (code.charAt(3) === "1") current.z += data[i++] - 32;
-				if (code.charAt(4) === "1") current.c += data[i++] - 32;
-				if (code.charAt(0) === "1") {
-					voxel = new THREE.Mesh(cube, new THREE.MeshColorFillMaterial(colors[current.c]));
-					voxel.position.x = current.x * 50 + 25;
-					voxel.position.y = current.y * 50 + 25;
-					voxel.position.z = current.z * 50 + 25;
-					voxel.overdraw = true;
-					scene.addObject(voxel);
-				}
-			}
-		} else {
-			data = decode(hash);
-			for (i = 0; i < data.length; i += 4) {
-				voxel = new THREE.Mesh(cube, new THREE.MeshColorFillMaterial(colors[data[i + 3]]));
-				voxel.position.x = (data[i] - 20) * 25;
-				voxel.position.y = (data[i + 1] + 1) * 25;
-				voxel.position.z = (data[i + 2] - 20) * 25;
-				voxel.overdraw = true;
-				scene.addObject(voxel);
-			}
-		}
-		updateHash();
-	}
-
-	/**
-	 *
-	 */
-	function updateHash() {
-
-		let data = [],
-			current = {x: 0, y: 0, z: 0, c: 0},
-			last = {x: 0, y: 0, z: 0, c: 0},
-			code;
-
-		let object;
-		for (const i in scene.objects) {
-			object = scene.objects[i];
-			if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
-
-				current.x = (object.position.x - 25) / 50;
-				current.y = (object.position.y - 25) / 50;
-				current.z = (object.position.z - 25) / 50;
-				current.c = colors.indexOf(object.material[0].color.hex & 0xffffff);
-
-				code = 0;
-
-				if (current.x !== last.x) code += 1000;
-				if (current.y !== last.y) code += 100;
-				if (current.z !== last.z) code += 10;
-				if (current.c !== last.c) code += 1;
-				code += 10000;
-				data.push(parseInt(code, 2));
-				if (current.x !== last.x) {
-					data.push(current.x - last.x + 32);
-					last.x = current.x;
-				}
-				if (current.y !== last.y) {
-					data.push(current.y - last.y + 32);
-					last.y = current.y;
-				}
-				if (current.z !== last.z) {
-					data.push(current.z - last.z + 32);
-					last.z = current.z;
-				}
-				if (current.c !== last.c) {
-					data.push(current.c - last.c + 32);
-					last.c = current.c;
-				}
-			}
-		}
-
-		data = encode(data);
-		window.location.hash = "A/" + data;
-		document.getElementById('link').href = "http://mrdoob.com/projects/voxels/#A/" + data;
-
-	}
-
-	function offsetScene(x, z) {
-		const offset = new THREE.Vector3(x, 0, z).multiplyScalar(50);
-		let object;
-		for (const i in scene.objects) {
-			object = scene.objects[i];
-			if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
-				object.position.addSelf(offset);
-			}
-		}
-		updateHash();
-		//interact();
-		render();
-	}
-
-	function interact() {
-
-		if (objectHovered) {
-			objectHovered.material[0].color.a = 1;
-			objectHovered.material[0].color.updateStyleString();
-			objectHovered = null;
-		}
-
-		let position, intersect, intersects = ray.intersectScene(scene);
-		if (intersects.length > 0) {
-			intersect = intersects[0].object !== brush ? intersects[0] : intersects[1];
-			if (intersect) {
-				if (isShiftDown) {
-					if (intersect.object !== plane) {
-						objectHovered = intersect.object;
-						objectHovered.material[0].color.a = 0.5;
-						objectHovered.material[0].color.updateStyleString();
-						return;
-					}
-				} else {
-					position = new THREE.Vector3().add(intersect.point, intersect.object.matrixRotation.transform(intersect.face.normal.clone()));
-					brush.position.x = Math.floor(position.x / 50) * 50 + 25;
-					brush.position.y = Math.floor(position.y / 50) * 50 + 25;
-					brush.position.z = Math.floor(position.z / 50) * 50 + 25;
-					return;
-				}
-			}
-		}
-		brush.position.y = 2000;
-	}
-
-
-	function save() {
-
-		linesMaterial.color.setRGBA(0, 0, 0, 0);
-		brush.position.y = 2000;
-		render();
-
-		window.open(renderer.domElement.toDataURL('image/png'), 'mywindow');
-		linesMaterial.color.setRGBA(0, 0, 0, 0.2);
-		render();
-
-	}
-
-	function clear() {
-
-		if (!confirm('Are you sure?')) {
-			return
-		}
-
-		window.location.hash = "";
-		let i = 0;
-		let object;
-		while (i < scene.objects.length) {
-			object = scene.objects[i];
-			if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
-				scene.removeObject(object);
-				continue;
-			}
-			i++;
-		}
-
-		updateHash();
-		render();
-
-	}
-
-
-	////////////////////////////////////////////////////////////////////////////
-	//
-	// Record
-	//
-	////////////////////////////////////////////////////////////////////////////
-
-	if (bCopyPNG) {
-
-		//const canvas_draw = $('#canvas-draw-fancy');
-		const canvas_draw = $('canvas')[2].getContext('2d');
-		canvas_draw.width = 320;
-		canvas_draw.height = 240;
-
-		draw_interval = setInterval(function () { // setInterval setTimeout
-			// import the image from the video
-			canvas_draw.drawImage(renderer.domElement, 0, 0, 320, 240);
-			// export the image from the canvas
-			const img = new Image();
-			img.src = $("canvas")[0].toDataURL('image/png');
-			img.width = 320;
-
-			if (bWritePNG) {
-				// set image data to php
-				const ajax = new XMLHttpRequest();
-				ajax.open("POST", 'makefile.php', false);
-				ajax.setRequestHeader('Content-Type', 'application/upload');
-				ajax.send(img.src);
-			}
-			// print screens on same page if necesary
-			//document.body.appendChild(img);
-		}, 80)
-	}
-
-	/*
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        objects = [];
+
+        // ------------------------------------------------
+        // define info element in DOM
+        // ------------------------------------------------
+        const info = document.createElement('div');
+        info.style.position = 'absolute';
+        info.style.top = '10px';
+        info.style.background = '#fff';
+        info.style.color = '#333';
+        info.style.width = '100%';
+        info.style.textAlign = 'center';
+        info.setAttribute.id = 'info';
+        info.innerHTML = '<a href="http://github.com/mrdoob/three.js" target="_blank">three.js</a> / Pseudo Equalizer in 3D Room  by Emil Maran';
+        container.appendChild(info);
+
+        // ------------------------------------------------
+        // Set Camera View & Scene
+        // ------------------------------------------------
+        camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 18000);
+        //camera.position.x = 100;
+        camera.position.y = 200;
+        camera.position.z = 420;
+
+        scene = new THREE.Scene();
+
+        // ------------------------------------------------
+        // Panorama landscape
+        // ------------------------------------------------
+
+        const mesh = new THREE.Mesh(
+            new THREE.CubeGeometry(1100, 1100, 1100, 2, 2, 4, materials),
+            new THREE.MeshLambertMaterial({
+                color: 0xF4E284, // ff0A04,
+                //shading: THREE.FlatShading
+                blending: THREE.AdditiveBlending
+            })
+        ); /* ff6699 */
+
+        mesh.scale.x = -2;
+        scene.add(mesh);
+        objects.push(mesh);
+
+        // -------------------------------------------------------------------------------------------------
+        // RANDOM CUBES
+        // -------------------------------------------------------------------------------------------------
+        // http://www.elated.com/articles/rotatable-3d-product-boxshot-threejs/
+
+        const arPositionX = {
+            '0': '140',
+            '1': '170',
+            '2': '190',
+            '3': '100',
+            '4': '80',
+            '5': '30'
+        };
+
+        const arPositionY = {
+            '0': '100',
+            '1': '130',
+            '2': '160',
+            '3': '190',
+            '4': '210',
+            '5': '240'
+        };
+
+        const arPositionZ = {
+            '0': '100',
+            '1': '100',
+            '2': '100',
+            '3': '100',
+            '4': '100',
+            '5': '100'
+        };
+
+
+        const geometry = new THREE.CubeGeometry(115, 115, 115);
+        const material = new THREE.MeshLambertMaterial({
+            color: 0xFAD232,
+            shading: THREE.AdditiveBlending,
+            overdraw: true
+        });
+
+        for (let i = 0; i < 6; i++) {
+            const cubeRnd = new THREE.Mesh(geometry, material);
+            cubeRnd.overdraw = false;
+            cubeRnd.transparent = false;
+            //cubeRnd.position.x = Math.floor( ( Math.random() * 1000 - 700 ) / 50 ) * 50 + 25;
+            cubeRnd.position.x = arPositionX[i];
+            cubeRnd.position.y = arPositionY[i];
+            cubeRnd.position.z = arPositionZ[i];
+            scene.add(cubeRnd);
+            objects.push(cubeRnd);
+        }
+
+        // -------------------------------------------------------------------------------------------------
+        // Lights
+        // -------------------------------------------------------------------------------------------------
+
+        particleLight = new THREE.Particle(new THREE.ParticleCanvasMaterial({color: 0xffffff}));
+        particleLight.scale.x = particleLight.scale.y = particleLight.scale.z = 6;
+        //scene.add( particleLight );
+
+        //scene.add( new THREE.AmbientLight( Math.random() * 0x202020 ) );
+
+        let directionalLight = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        directionalLight.position.x = Math.random() - 0.4;
+        directionalLight.position.y = Math.random() - 0.3;
+        directionalLight.position.z = Math.random() - 0.9;
+        directionalLight.position.normalize();
+        //scene.add( directionalLight );
+
+        pointLight = new THREE.PointLight(0xffffff, .7);
+        scene.add(pointLight);
+        objects.push(pointLight);
+
+        // add subtle ambient lighting
+        const lightSecond = new THREE.SpotLight(0xffffff, 1);
+        lightSecond.position.set(1290, 530, -160);
+        //scene.add(lightSecond);
+
+        // add subtle ambient lighting
+        new THREE.AmbientLight(0xffffff);
+        //scene.add(ambientLight);
+
+        // add directional light source
+        directionalLight = new THREE.DirectionalLight(0xffffff);
+        directionalLight.position.set(10, 100, 1000).normalize();
+        //scene.add(directionalLight);
+
+
+        // ------------------------------------------------
+        // renderer
+        // ------------------------------------------------
+        renderer = new THREE.CanvasRenderer();
+        // renderer = new THREE.WebGLRenderer();
+        renderer.setSize(windowHalfX, windowHalfY); // window.innerWidth, window.innerHeight
+        container.appendChild(renderer.domElement);
+
+        // ------------------------------------------------
+        // debugCanvas
+        // ------------------------------------------------
+
+        const debugCanvas = document.createElement('canvas');
+        debugCanvas.width = 512;
+        debugCanvas.height = 512;
+        debugCanvas.style.position = 'absolute';
+        debugCanvas.style.top = '0px';
+        debugCanvas.style.left = '0px';
+        debugCanvas.setAttribute.id = 'debugCanvas';
+        container.appendChild(debugCanvas);
+
+        const debugContext = debugCanvas.getContext('2d');
+        debugContext.setTransform(1, 0, 0, 1, 256, 256);
+        debugContext.strokeStyle = '#000000';
+
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        container.appendChild(stats.domElement);
+
+        //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+        // ------------------------------------------------
+        // debugCanvas
+        // ------------------------------------------------
+
+        const nfoCanvas = document.createElement('canvas');
+        nfoCanvas.width = 512;
+        nfoCanvas.height = 512;
+        nfoCanvas.style.position = 'absolute';
+        nfoCanvas.style.top = '220px';
+        nfoCanvas.style.left = '220px';
+        nfoCanvas.setAttribute.id = 'nfoCanvas';
+        container.appendChild(nfoCanvas);
+
+        const nfoContext = nfoCanvas.getContext('2d');
+        nfoContext.setTransform(1, 0, 0, 1, 256, 256);
+        nfoContext.strokeStyle = '#000000';
+
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // ChangeCameraPosByClick
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+    function ChangeCameraPosByClick(itemId) {
+        //document.removeEventListener('mousemove',onDocumentMouseMove ,false);
+        $('canvas').unbind('mousemove');
+        if (itemId === "item1") {
+            camera.position.x = 140;
+            camera.position.y = 153;
+            camera.position.z = 423; // z - zoom
+        } else if (itemId === "item2") {
+            camera.position.x = 20;
+            camera.position.y = 113;
+            camera.position.z = 592; // z - zoom
+        }
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+        renderer.setClearColorHex(bgRender, 0.9);
+        stats.update();
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // loadTexture
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+    function loadTexture(path) {
+        const texture = new THREE.Texture(texture_placeholder);
+        const material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
+        const image = new Image();
+        image.onload = function () {
+            texture.needsUpdate = true;
+            material.map.image = this;
+            render();
+
+        };
+        image.src = path;
+        return material;
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    //  RENDER
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+    function render() {
+
+        const timer = new Date().getTime() * 0.00009;
+        camera.position.x = Math.cos(timer) * 100;
+        camera.position.y = Math.cos(timer) * 700;
+        camera.position.z = Math.sin(timer) * 1950;
+        camera.lookAt(scene.position);
+        const numerator = timer * 1000000;
+        const denominator = 17;
+        const remainder = numerator % denominator;
+
+        let i = 0, l = objects.length;
+        let colorCB;
+        let colorCC;
+        for (; i < l; i++) {
+            colorCB = '0xff' + Math.round(Math.random() * 9) + 'f' + Math.round(Math.random() * 9) + 'f'; // 0xff00ff
+            colorCC = '0xff' + Math.round(Math.random() * 8) + 'f' + Math.round(Math.random() * 2) + 'f'; // 0xff00ff
+            const object = objects[i];
+            //object.rotation.x += Math.random() * 0.00002 + 0.00003;
+            //object.rotation.y += Math.random() * 0.00002 + 0.00004;
+            if (i > 0) {
+                //object.rotation.z += Math.random() * 0.00002 + 0.00006;
+            }
+            object.material = new THREE.MeshBasicMaterial({
+                color: colorCC, // ECDC68
+                transparent: false,
+                opacity: 0.8,
+                overdraw: true,
+                wireframe: false,
+                blending: THREE.AdditiveBlending
+            });
+            if (remainder > 15) {
+                object.scale.x = Math.random() * 0.6 + Math.random() * 7;
+                object.scale.y = Math.random() * 0.09 + Math.random() * 3;
+                object.scale.z = Math.random() * 9 + Math.PI / 180;
+                object.material = new THREE.MeshBasicMaterial({
+                    color: colorCB,
+                    transparent: false,
+                    opacity: 0.8,
+                    overdraw: true,
+                    wireframe: false,
+                    blending: THREE.AdditiveBlending
+                });
+            }
+        }
+        renderer.render(scene, camera);
+        renderer.setClearColorHex(bgRender, 0.9);
+        stats.update();
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // LOADIMAGE
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+    function loadImage(path) {
+        const image = document.createElement('img');
+        const texture = new THREE.Texture(image, THREE.UVMapping);
+        image.onload = function () {
+            texture.needsUpdate = true;
+        };
+        image.src = path;
+        return texture;
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // ANIMATE
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+    function animate() {
+
+        requestAnimationFrame(animate);
+        render();
+        stats.update();
+
+    }
+
+    function setBrushColor(value) {
+        color = value;
+        brush.material[0].color.setHex(colors[color] ^ 0x4C000000);
+        render();
+    }
+
+    function buildFromHash() {
+
+        let voxel;
+        let i;
+        let data;
+        const hash = window.location.hash.substr(1),
+            version = hash.substr(0, 2);
+
+        if (version === "A/") {
+            const current = {x: 0, y: 0, z: 0, c: 0};
+            data = decode(hash.substr(2));
+            i = 0;
+            let l = data.length;
+            while (i < l) {
+                const code = data[i++].toString(2);
+                if (code.charAt(1) === "1") current.x += data[i++] - 32;
+                if (code.charAt(2) === "1") current.y += data[i++] - 32;
+                if (code.charAt(3) === "1") current.z += data[i++] - 32;
+                if (code.charAt(4) === "1") current.c += data[i++] - 32;
+                if (code.charAt(0) === "1") {
+                    voxel = new THREE.Mesh(cube, new THREE.MeshColorFillMaterial(colors[current.c]));
+                    voxel.position.x = current.x * 50 + 25;
+                    voxel.position.y = current.y * 50 + 25;
+                    voxel.position.z = current.z * 50 + 25;
+                    voxel.overdraw = true;
+                    scene.addObject(voxel);
+                }
+            }
+        } else {
+            data = decode(hash);
+            for (i = 0; i < data.length; i += 4) {
+                voxel = new THREE.Mesh(cube, new THREE.MeshColorFillMaterial(colors[data[i + 3]]));
+                voxel.position.x = (data[i] - 20) * 25;
+                voxel.position.y = (data[i + 1] + 1) * 25;
+                voxel.position.z = (data[i + 2] - 20) * 25;
+                voxel.overdraw = true;
+                scene.addObject(voxel);
+            }
+        }
+        updateHash();
+    }
+
+    /**
+     *
+     */
+    function updateHash() {
+
+        let data = [],
+            current = {x: 0, y: 0, z: 0, c: 0},
+            last = {x: 0, y: 0, z: 0, c: 0},
+            code;
+
+        let object;
+        for (const i in scene.objects) {
+            object = scene.objects[i];
+            if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
+
+                current.x = (object.position.x - 25) / 50;
+                current.y = (object.position.y - 25) / 50;
+                current.z = (object.position.z - 25) / 50;
+                current.c = colors.indexOf(object.material[0].color.hex & 0xffffff);
+
+                code = 0;
+
+                if (current.x !== last.x) code += 1000;
+                if (current.y !== last.y) code += 100;
+                if (current.z !== last.z) code += 10;
+                if (current.c !== last.c) code += 1;
+                code += 10000;
+                data.push(parseInt(code, 2));
+                if (current.x !== last.x) {
+                    data.push(current.x - last.x + 32);
+                    last.x = current.x;
+                }
+                if (current.y !== last.y) {
+                    data.push(current.y - last.y + 32);
+                    last.y = current.y;
+                }
+                if (current.z !== last.z) {
+                    data.push(current.z - last.z + 32);
+                    last.z = current.z;
+                }
+                if (current.c !== last.c) {
+                    data.push(current.c - last.c + 32);
+                    last.c = current.c;
+                }
+            }
+        }
+
+        data = encode(data);
+        window.location.hash = "A/" + data;
+        document.getElementById('link').href = "https://mrdoob.com/projects/voxels/#A/" + data;
+
+    }
+
+    function offsetScene(x, z) {
+        const offset = new THREE.Vector3(x, 0, z).multiplyScalar(50);
+        let object;
+        for (const i in scene.objects) {
+            object = scene.objects[i];
+            if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
+                object.position.addSelf(offset);
+            }
+        }
+        updateHash();
+        //interact();
+        render();
+    }
+
+    function interact() {
+
+        if (objectHovered) {
+            objectHovered.material[0].color.a = 1;
+            objectHovered.material[0].color.updateStyleString();
+            objectHovered = null;
+        }
+
+        let position, intersect, intersects = ray.intersectScene(scene);
+        if (intersects.length > 0) {
+            intersect = intersects[0].object !== brush ? intersects[0] : intersects[1];
+            if (intersect) {
+                if (isShiftDown) {
+                    if (intersect.object !== plane) {
+                        objectHovered = intersect.object;
+                        objectHovered.material[0].color.a = 0.5;
+                        objectHovered.material[0].color.updateStyleString();
+                        return;
+                    }
+                } else {
+                    position = new THREE.Vector3().add(intersect.point, intersect.object.matrixRotation.transform(intersect.face.normal.clone()));
+                    brush.position.x = Math.floor(position.x / 50) * 50 + 25;
+                    brush.position.y = Math.floor(position.y / 50) * 50 + 25;
+                    brush.position.z = Math.floor(position.z / 50) * 50 + 25;
+                    return;
+                }
+            }
+        }
+        brush.position.y = 2000;
+    }
+
+
+    function save() {
+
+        linesMaterial.color.setRGBA(0, 0, 0, 0);
+        brush.position.y = 2000;
+        render();
+
+        window.open(renderer.domElement.toDataURL('image/png'), 'mywindow');
+        linesMaterial.color.setRGBA(0, 0, 0, 0.2);
+        render();
+
+    }
+
+    function clear() {
+
+        if (!confirm('Are you sure?')) {
+            return
+        }
+
+        window.location.hash = "";
+        let i = 0;
+        let object;
+        while (i < scene.objects.length) {
+            object = scene.objects[i];
+            if (object instanceof THREE.Mesh && object !== plane && object !== brush) {
+                scene.removeObject(object);
+                continue;
+            }
+            i++;
+        }
+
+        updateHash();
+        render();
+
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Record
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    if (bCopyPNG) {
+
+        //const canvas_draw = $('#canvas-draw-fancy');
+        const canvas_draw = $('canvas')[2].getContext('2d');
+        canvas_draw.width = 320;
+        canvas_draw.height = 240;
+
+        draw_interval = setInterval(function () { // setInterval setTimeout
+            // import the image from the video
+            canvas_draw.drawImage(renderer.domElement, 0, 0, 320, 240);
+            // export the image from the canvas
+            const img = new Image();
+            img.src = $("canvas")[0].toDataURL('image/png');
+            img.width = 320;
+
+            if (bWritePNG) {
+                // set image data to php
+                const ajax = new XMLHttpRequest();
+                ajax.open("POST", 'makefile.php', false);
+                ajax.setRequestHeader('Content-Type', 'application/upload');
+                ajax.send(img.src);
+            }
+            // print screens on same page if necesary
+            //document.body.appendChild(img);
+        }, 80)
+    }
+
+    /*
     webcam.save('/upload.php');
         */
 

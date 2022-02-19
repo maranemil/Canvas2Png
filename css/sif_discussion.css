@@ -1,70 +1,70 @@
 .discussionbox {
-	width: 698px;
-	height: 150px;
-	margin: 20px 0 0 0;
-	padding: 10px 0 10px 20px;
-	border: 1px dotted #444444;
-	background-color: #555555;
-	color: #e8eee8;
-	font-size: 1.0em;
+    width: 698px;
+    height: 150px;
+    margin: 20px 0 0 0;
+    padding: 10px 0 10px 20px;
+    border: 1px dotted #444444;
+    background-color: #555555;
+    color: #e8eee8;
+    font-size: 1.0em;
 }
 
 .discussioncomments {
-	width: 638px;
-	margin: 20px 0 0 20px;
+    width: 638px;
+    margin: 20px 0 0 20px;
 }
 
 .discussioncommentfirst {
-	color: #dddddd;
-	padding: 10px 20px 10px 20px;
+    color: #dddddd;
+    padding: 10px 20px 10px 20px;
 }
 
 .discussioncomment {
-	color: #dddddd;
-	padding: 10px 20px 10px 20px;
-	border-top:1px solid #444444;
+    color: #dddddd;
+    padding: 10px 20px 10px 20px;
+    border-top: 1px solid #444444;
 }
 
 .discussioninfo {
-	padding: 0 0 0 20px;
-	color: #e8eee8;
+    padding: 0 0 0 20px;
+    color: #e8eee8;
 }
 
 .discussionpostinfo {
-	font-style: italic;
-	font-size: 0.9em;
+    font-style: italic;
+    font-size: 0.9em;
 }
 
 .discussionbutton {
-	display: block;
-	color: #000000;
-	text-decoration: none;
-	background-color: #e8eee8;
-	border: 0;
-	border-radius: 3px;
+    display: block;
+    color: #000000;
+    text-decoration: none;
+    background-color: #e8eee8;
+    border: 0;
+    border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     margin: 20px 0 0 20px;
-	padding: 4px 0 4px 20px;
-	width: 70px;
+    padding: 4px 0 4px 20px;
+    width: 70px;
 }
 
 .discussionbutton a, .discussionbutton:hover, .discussionbutton:visited, .discussionbutton:active {
-	color: #000000;
-	text-decoration: none;
+    color: #000000;
+    text-decoration: none;
 }
 
 #discussionerror {
-	color: #ffdddd;
-	padding: 10px 0 10px 0;
+    color: #ffdddd;
+    padding: 10px 0 10px 0;
 }
 
 .form200 {
-	width: 150px;
-	height: 14px;
-	font-size: 0.9em;
-	background-color: #555555;
-	color: #e8eee8;
-	border: 1px dotted #444444;
+    width: 150px;
+    height: 14px;
+    font-size: 0.9em;
+    background-color: #555555;
+    color: #e8eee8;
+    border: 1px dotted #444444;
 }
 
